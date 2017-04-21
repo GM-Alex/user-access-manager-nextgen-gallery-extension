@@ -35,23 +35,46 @@ class FrontendController extends Controller
         $this->accessHandler = $accessHandler;
     }
 
+    private function getPossibleValues($object, $checkValues)
+    {
+        $id = null;
+
+        foreach ($checkValues as $checkValue) {
+            if ($id === null && isset($object->{$checkValue}) === true && empty($object->{$checkValue}) === false) {
+                $value = $object->{$checkValue};
+                $id = (is_array($value) === true) ? reset($value) : $value;
+            }
+        }
+
+        return $id;
+    }
+
     /**
      * Manipulates the output of a gallery.
      *
-     * @param string $output    The output.
-     * @param int    $galleryId The gallery id.
+     * @param string               $content The output.
+     * @param \C_Displayed_Gallery $gallery The gallery.
      *
      * @return string
      */
-    public function showGalleryContent($output, $galleryId)
+    public function showGalleryContent($content, $gallery)
     {
-        $aOptions = $this->nggConfig->getOptions();
+        $objectType = Gallery::OBJECT_TYPE;
+        $contentOptionName = 'gallery_content';
 
-        if ($this->accessHandler->checkObjectAccess(Gallery::OBJECT_TYPE, $galleryId) === false) {
-            $output = $aOptions['gallery_content'];
+        if ($gallery->source === 'albums') {
+            $objectType = Album::OBJECT_TYPE;
+            $contentOptionName = 'album_content';
         }
 
-        return $output;
+        $galleryId = $this->getPossibleValues($gallery, ['id', 'gid', 'container_ids', 'gallery_ids']);
+
+        if ($this->accessHandler->checkObjectAccess($objectType, $galleryId) === false) {
+            $options = $this->nggConfig->getOptions();
+            $content = $options[$contentOptionName];
+        }
+
+        return $content;
     }
 
     /**
@@ -76,6 +99,24 @@ class FrontendController extends Controller
         return $images;
     }
 
+    private function getImageUrl($url, $objectType, $objectId = null)
+    {
+        //Manipulate preview image
+        $sSuffix = "uamfiletype={$objectType}";
+        $sSuffix .= ($objectId !== null) ? "&uamextra={$objectId}" : '';
+
+        if ($this->config->isPermalinksActive() === false
+            && $this->config->lockFile() === true
+        ) {
+            $sPrefix = $this->wordpress->getHomeUrl('/').'?uamgetfile=';
+            $url = $sPrefix.$url.'&'.$sSuffix;
+        } else {
+            $url = $url.'?'.$sSuffix;
+        }
+
+        return $url;
+    }
+
     /**
      * Manipulates the gallery for a album.
      *
@@ -95,16 +136,11 @@ class FrontendController extends Controller
         }
 
         //Manipulate preview image
-        $sSuffix = 'uamfiletype='.Image::OBJECT_TYPE;
-
-        if ($this->config->isPermalinksActive() === false
-            && $this->config->lockFile() === true
-        ) {
-            $sPrefix = $this->wordpress->getHomeUrl('/').'?uamgetfile=';
-            $gallery->previewurl = $sPrefix.$gallery->previewurl.'&'.$sSuffix;
-        } else {
-            $gallery->previewurl = $gallery->previewurl.'?'.$sSuffix;
-        }
+        $gallery->previewurl = $this->getImageUrl(
+            $gallery->previewurl,
+            Gallery::OBJECT_TYPE,
+            $gallery->gid
+        );
 
         return $gallery;
     }
@@ -120,10 +156,10 @@ class FrontendController extends Controller
     {
         $options = $this->nggConfig->getOptions();
 
-        if ($options['hide_gallery'] == 'true' || true) {
-            foreach ($galleries as $galleryId) {
-                if ($this->accessHandler->checkObjectAccess(Gallery::OBJECT_TYPE, $galleryId) === false) {
-                    unset($galleries[$galleryId]);
+        if ($options['hide_gallery'] == 'true') {
+            foreach ($galleries as $key => $gallery) {
+                if ($this->accessHandler->checkObjectAccess(Gallery::OBJECT_TYPE, $gallery->gid) === false) {
+                    unset($galleries[$key]);
                 }
             }
         }
@@ -157,19 +193,16 @@ class FrontendController extends Controller
      */
     public function loadImage($image)
     {
-        $suffix = 'uamfiletype='.Image::OBJECT_TYPE;
+        $image->imageURL = $this->getImageUrl(
+            $image->imageURL,
+            Image::OBJECT_TYPE,
+            $image->id
+        );
 
-        if ($this->config->isPermalinksActive() === false
-            && $this->config->lockFile() === true
-        ) {
-            //Adding '.jpg' to the prefix prevents thick box display error
-            $sPrefix = $this->wordpress->getHomeUrl('/').'.jpg?uamgetfile=';
-
-            $image->imageURL = $sPrefix.$image->imageURL.'&'.$suffix;
-            $image->thumbURL = $sPrefix.$image->thumbURL.'&'.$suffix;
-        } else {
-            $image->imageURL = $image->imageURL.'?'.$suffix;
-            $image->thumbURL = $image->thumbURL.'?'.$suffix;
-        }
+        $image->thumbURL = $this->getImageUrl(
+            $image->thumbURL,
+            Image::OBJECT_TYPE,
+            $image->id
+        );
     }
 }

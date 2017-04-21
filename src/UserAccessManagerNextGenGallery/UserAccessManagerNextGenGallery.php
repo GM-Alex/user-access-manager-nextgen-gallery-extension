@@ -103,6 +103,11 @@ class UserAccessManagerNextGenGallery
      */
     private function addHooks()
     {
+        // Caching must be disabled
+        if (defined('PHOTOCRATI_CACHE') === false) {
+            define('PHOTOCRATI_CACHE', false);
+        }
+
         if (version_compare(UserAccessManager::VERSION, '2.0.0') === -1) {
             $this->wordpress->addAction(
                 'admin_notices',
@@ -164,9 +169,8 @@ class UserAccessManagerNextGenGallery
         });
 
         // Filter
-        //TODO not existing anymore
         $this->wordpress->addFilter(
-            'ngg_show_gallery_content',
+            'ngg_displayed_gallery_rendering',
             [$this->frontendController, 'showGalleryContent'],
             10,
             2
@@ -179,26 +183,28 @@ class UserAccessManagerNextGenGallery
             2
         );
         $this->wordpress->addFilter(
-            'ngg_show_album_content',
+            'ngg_display_album_item_content',
             [$this->frontendController, 'showAlbumContent'],
             10,
             2
         );
+
         $this->wordpress->addFilter(
             'ngg_album_galleryobject',
             [$this->frontendController, 'showGalleryObjectForAlbum'],
             10
         );
 
-        //TODO not existing anymore
         $this->wordpress->addFilter(
-            'ngg_album_galleries',
+            'ngg_album_prepared_child_entity',
             [$this->frontendController, 'showGalleriesForAlbum'],
             10
         );
         $this->wordpress->addFilter('ngg_manage_gallery_columns', [$this->adminController, 'showGalleryHeadColumn']);
 
         $this->wordpress->addFilter('ngg_get_image', [$this->frontendController, 'loadImage']);
+
+        $this->wordpress->addFilter('uam_get_file_settings_by_type', [$this, 'handleImageRequest'], 10, 4);
     }
 
     /**
@@ -293,5 +299,11 @@ class UserAccessManagerNextGenGallery
     {
         $dir = $this->getGalleryDir();
         $this->fileHandler->deleteFileProtection($dir);
+    }
+
+    public function handleImageRequest($object, $type, $url, $id)
+    {
+        echo $object.'|'.$type.'|'.$url.'|'.$id;
+        exit;
     }
 }
