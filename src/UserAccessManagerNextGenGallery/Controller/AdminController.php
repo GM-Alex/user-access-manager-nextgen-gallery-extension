@@ -20,6 +20,17 @@ class AdminController extends AdminObjectController
      */
     private $nggConfig;
 
+    /**
+     * AdminController constructor.
+     *
+     * @param Php           $php
+     * @param Wordpress     $wordpress
+     * @param Config        $config
+     * @param NggConfig     $nggConfig
+     * @param Database      $database
+     * @param ObjectHandler $objectHandler
+     * @param AccessHandler $accessHandler
+     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,

@@ -91,14 +91,10 @@ if (function_exists('add_action')) {
             $userAccessManager->getObjectHandler(),
             $userAccessManager->getAccessHandler(),
             $userAccessManager->getFileHandler(),
+            $userAccessManager->getFileObjectFactory(),
             $frontendController,
             $adminController
         );
-
-        // install
-        register_activation_hook(__FILE__, function () use ($userAccessManagerNextGenGallery) {
-            $userAccessManagerNextGenGallery->activate();
-        });
 
         // deactivation
         register_deactivation_hook(__FILE__, function () use ($userAccessManagerNextGenGallery) {
@@ -106,3 +102,40 @@ if (function_exists('add_action')) {
         });
     });
 }
+
+// install
+register_activation_hook(__FILE__, function () {
+    global $userAccessManager;
+
+    $nggConfig = new \UserAccessManagerNextGenGallery\Config\Config($userAccessManager->getWordpress());
+    $nextGenGallery = new \UserAccessManagerNextGenGallery\Wrapper\NextGenGallery();
+    $frontendController = new \UserAccessManagerNextGenGallery\Controller\FrontendController(
+        $userAccessManager->getPhp(),
+        $userAccessManager->getWordpress(),
+        $userAccessManager->getConfig(),
+        $nggConfig,
+        $userAccessManager->getAccessHandler()
+    );
+    $adminController = new \UserAccessManagerNextGenGallery\Controller\AdminController(
+        $userAccessManager->getPhp(),
+        $userAccessManager->getWordpress(),
+        $userAccessManager->getConfig(),
+        $nggConfig,
+        $userAccessManager->getDatabase(),
+        $userAccessManager->getObjectHandler(),
+        $userAccessManager->getAccessHandler()
+    );
+    $userAccessManagerNextGenGallery = new \UserAccessManagerNextGenGallery\UserAccessManagerNextGenGallery(
+        $userAccessManager->getWordpress(),
+        $nextGenGallery,
+        $userAccessManager->getDatabase(),
+        $userAccessManager->getConfig(),
+        $userAccessManager->getObjectHandler(),
+        $userAccessManager->getAccessHandler(),
+        $userAccessManager->getFileHandler(),
+        $userAccessManager->getFileObjectFactory(),
+        $frontendController,
+        $adminController
+    );
+    $userAccessManagerNextGenGallery->activate();
+});

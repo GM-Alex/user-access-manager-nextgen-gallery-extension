@@ -23,6 +23,15 @@ class FrontendController extends Controller
      */
     private $accessHandler;
 
+    /**
+     * FrontendController constructor.
+     *
+     * @param Php           $php
+     * @param Wordpress     $wordpress
+     * @param Config        $config
+     * @param NggConfig     $nggConfig
+     * @param AccessHandler $accessHandler
+     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
@@ -35,6 +44,14 @@ class FrontendController extends Controller
         $this->accessHandler = $accessHandler;
     }
 
+    /**
+     * Checks the possible values for ids and returns the id if available.
+     *
+     * @param $object
+     * @param $checkValues
+     *
+     * @return mixed|null
+     */
     private function getPossibleValues($object, $checkValues)
     {
         $id = null;
@@ -74,31 +91,32 @@ class FrontendController extends Controller
             $content = $options[$contentOptionName];
         }
 
-        return $content;
-    }
-
-    /**
-     * Filters the images.
-     *
-     * @param array $images The images of the gallery.
-     *
-     * @return array
-     */
-    public function showGalleryImages(array $images)
-    {
         $options = $this->nggConfig->getOptions();
 
-        if ($options['hide_image'] == 'true') {
-            foreach ($images as $key => $image) {
+        if ($objectType === Gallery::OBJECT_TYPE && $options['hide_image'] === 'true') {
+            foreach ($gallery->get_included_entities() as $image) {
                 if ($this->accessHandler->checkObjectAccess(Image::OBJECT_TYPE, $image->pid) === false) {
-                    unset($images[$key]);
+                    if (is_array($gallery->exclusions) === false) {
+                        $gallery->exclusions = [];
+                    }
+
+                    $gallery->exclusions[] = $image->pid;
                 }
             }
         }
 
-        return $images;
+        return $content;
     }
 
+    /**
+     * Returns the url for the object.
+     *
+     * @param string $url
+     * @param string $objectType
+     * @param null   $objectId
+     *
+     * @return string
+     */
     private function getImageUrl($url, $objectType, $objectId = null)
     {
         //Manipulate preview image
@@ -191,7 +209,7 @@ class FrontendController extends Controller
      *
      * @param object $image The image object.
      */
-    public function loadImage($image)
+    public function loadImage(&$image)
     {
         $image->imageURL = $this->getImageUrl(
             $image->imageURL,
@@ -203,6 +221,21 @@ class FrontendController extends Controller
             $image->thumbURL,
             Image::OBJECT_TYPE,
             $image->id
+        );
+    }
+
+    /**
+     * @param string    $url
+     * @param \stdClass $image
+     *
+     * @return string
+     */
+    public function returnImageUrl($url, $image)
+    {
+        return $this->getImageUrl(
+            $url,
+            Image::OBJECT_TYPE,
+            $image->pid
         );
     }
 }

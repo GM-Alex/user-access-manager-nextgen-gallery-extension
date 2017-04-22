@@ -84,4 +84,12 @@ class NextGenGallery
     {
         return \C_Album_Mapper::get_instance()->find_all();
     }
+
+    /**
+     * @return \C_Gallery_Storage
+     */
+    public function getStorage()
+    {
+        return \C_Gallery_Storage::get_instance();
+    }
 }

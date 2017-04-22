@@ -5,6 +5,7 @@ use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
@@ -46,6 +47,11 @@ class UserAccessManagerNextGenGallery
     private $fileHandler;
 
     /**
+     * @var FileObjectFactory
+     */
+    private $fileObjectFactory;
+
+    /**
      * @var FrontendController
      */
     private $frontendController;
@@ -70,6 +76,7 @@ class UserAccessManagerNextGenGallery
      * @param ObjectHandler         $objectHandler
      * @param AccessHandler         $accessHandler
      * @param FileHandler           $fileHandler
+     * @param FileObjectFactory     $fileObjectFactory
      * @param FrontendController    $frontendController
      * @param AdminController       $adminController
      */
@@ -81,6 +88,7 @@ class UserAccessManagerNextGenGallery
         ObjectHandler $objectHandler,
         AccessHandler $accessHandler,
         FileHandler $fileHandler,
+        FileObjectFactory $fileObjectFactory,
         FrontendController $frontendController,
         AdminController $adminController
     ) {
@@ -90,6 +98,7 @@ class UserAccessManagerNextGenGallery
         $this->objectHandler = $objectHandler;
         $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
+        $this->fileObjectFactory = $fileObjectFactory;
         $this->frontendController = $frontendController;
         $this->adminController = $adminController;
         $this->nextGenGallery = $nextGenGallery;
@@ -175,13 +184,6 @@ class UserAccessManagerNextGenGallery
             10,
             2
         );
-        //TODO not existing anymore
-        $this->wordpress->addFilter(
-            'ngg_picturelist_object',
-            [$this->frontendController, 'showGalleryImages'],
-            10,
-            2
-        );
         $this->wordpress->addFilter(
             'ngg_display_album_item_content',
             [$this->frontendController, 'showAlbumContent'],
@@ -203,6 +205,7 @@ class UserAccessManagerNextGenGallery
         $this->wordpress->addFilter('ngg_manage_gallery_columns', [$this->adminController, 'showGalleryHeadColumn']);
 
         $this->wordpress->addFilter('ngg_get_image', [$this->frontendController, 'loadImage']);
+        $this->wordpress->addFilter('ngg_get_image_url', [$this->frontendController, 'returnImageUrl'], 10, 2);
 
         $this->wordpress->addFilter('uam_get_file_settings_by_type', [$this, 'handleImageRequest'], 10, 4);
     }
@@ -301,9 +304,33 @@ class UserAccessManagerNextGenGallery
         $this->fileHandler->deleteFileProtection($dir);
     }
 
-    public function handleImageRequest($object, $type, $url, $id)
+    public function handleImageRequest($object, $objectType, $url, $objectId)
     {
-        echo $object.'|'.$type.'|'.$url.'|'.$id;
-        exit;
+        $image = null;
+        $fileName = end(explode('/', $url));
+
+        if ($objectType === Image::OBJECT_TYPE) {
+            $image = $this->nextGenGallery->getImage($objectId);
+        } elseif ($objectType === Gallery::OBJECT_TYPE) {
+            $gallery = $this->nextGenGallery->getGallery($objectId);
+            $image = $this->nextGenGallery->getImage($gallery->previewpic);
+        } else {
+            //TODO
+        }
+
+        if ($image !== null) {
+            $storage = $this->nextGenGallery->getStorage();
+
+            if (strstr($fileName, 'dyn') !== false) {
+                $fileName = 'dynamic/'.$fileName;
+            } elseif (strstr($fileName, 'thumbs_') !== false) {
+                $fileName = 'thumbs/'.$fileName;
+            }
+
+            $file = str_replace($image->filename, $fileName, $storage->get_image_abspath($image));
+            $object = $this->fileObjectFactory->createFileObject($objectId, $objectType, $file, true);
+        }
+
+        return $object;
     }
 }
