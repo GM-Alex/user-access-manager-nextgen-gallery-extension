@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager - NextGEN Gallery Extension
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/nextgen-gallery/
  * Author URI: http://www.gm-alex.de/
- * Version: 0.1.4.1
+ * Version: 1.0.0-Beta
  * Author: Alexander Schneider
  * Description: With this plugin you can use the user access manager to control the access for the NextGen Gallery.
  *

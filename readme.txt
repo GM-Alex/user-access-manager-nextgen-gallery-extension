@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, gallery, galleries, image, images, member area, members, member, member access, nextgen, NextGEN Gallery, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.7.4
-Stable tag: 1.0.0 Beta
+Stable tag: 1.0.0-Beta
 
 With this plugin you can use the "User Access Manager" to control the access for the "NextGen Gallery".
 
@@ -36,7 +36,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
 
-    1.0.0 Beta  2017/04/22  Refactoring for user access manager 2.0.0.
+    1.0.0-Beta  2017/04/22  Refactoring for user access manager 2.0.0.
 
     0.1.4.1     2013/05/06  Refactor stuff.
                             Adjust to works again with the current version of the UAM.
