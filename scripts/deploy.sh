@@ -15,15 +15,16 @@ if [[ -z "${TRAVIS_TAG}" ]]; then
 	exit 0
 fi
 
-./build.sh
-
 WP_ORG_USERNAME="GM_Alex"
 PLUGIN="user-access-manager-nextgen-gallery-extension"
 PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+"${PROJECT_ROOT}/scripts/build.sh"
+
 PLUGIN_BUILDS_PATH="${PROJECT_ROOT}/builds"
 
 PLUGIN_MAIN_FILE_CONTENT=$(cat ${PROJECT_ROOT}/${PLUGIN}.php)
-VERSION_REGEX='.*Version:[ ]*([0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z]*).*'
+VERSION_REGEX='.*Version:[ ]*([0-9]+\.[0-9]+\.[0-9]+-?[A-Za-z]*).*'
 
 if [[ ${PLUGIN_MAIN_FILE_CONTENT} =~ ${VERSION_REGEX} ]]; then
     VERSION=${BASH_REMATCH[1]}
@@ -33,7 +34,7 @@ else
 fi
 
 PLUGIN_README_FILE_CONTENT=$(cat ${PROJECT_ROOT}/readme.txt)
-STABLE_VERSION_REGEX='.*Stable tag:[ ]*([0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z]*).*'
+STABLE_VERSION_REGEX='.*Stable tag:[ ]*([0-9]+\.[0-9]+\.[0-9]+-?[A-Za-z]*).*'
 
 if [[ ${PLUGIN_README_FILE_CONTENT} =~ ${STABLE_VERSION_REGEX} ]]; then
     STABLE_VERSION=${BASH_REMATCH[1]}
