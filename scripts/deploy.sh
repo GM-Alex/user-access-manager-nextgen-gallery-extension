@@ -15,6 +15,8 @@ if [[ -z "${TRAVIS_TAG}" ]]; then
 	exit 0
 fi
 
+./build.sh
+
 WP_ORG_USERNAME="GM_Alex"
 PLUGIN="user-access-manager-nextgen-gallery-extension"
 PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
