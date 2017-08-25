@@ -28,18 +28,18 @@ class FrontendController extends Controller
      *
      * @param Php           $php
      * @param Wordpress     $wordpress
-     * @param Config        $config
+     * @param Config        $wordpressConfig
      * @param NggConfig     $nggConfig
      * @param AccessHandler $accessHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        Config $wordpressConfig,
         NggConfig $nggConfig,
         AccessHandler $accessHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
         $this->nggConfig = $nggConfig;
         $this->accessHandler = $accessHandler;
     }
@@ -123,8 +123,8 @@ class FrontendController extends Controller
         $sSuffix = "uamfiletype={$objectType}";
         $sSuffix .= ($objectId !== null) ? "&uamextra={$objectId}" : '';
 
-        if ($this->config->isPermalinksActive() === false
-            && $this->config->lockFile() === true
+        if ($this->mainConfig->isPermalinksActive() === false
+            && $this->mainConfig->lockFile() === true
         ) {
             $sPrefix = $this->wordpress->getHomeUrl('/').'?uamgetfile=';
             $url = $sPrefix.$url.'&'.$sSuffix;
