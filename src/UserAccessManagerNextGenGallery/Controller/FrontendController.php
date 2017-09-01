@@ -1,7 +1,7 @@
 <?php
 namespace UserAccessManagerNextGenGallery\Controller;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Wrapper\Php;

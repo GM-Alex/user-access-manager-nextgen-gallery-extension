@@ -3,7 +3,7 @@
 namespace UserAccessManagerNextGenGallery\PluggableObject;
 
 use UserAccessManager\Config\Config;
-use UserAccessManager\ObjectHandler\PluggableObject;
+use UserAccessManager\Object\PluggableObject;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManagerNextGenGallery\Wrapper\NextGenGallery;
 

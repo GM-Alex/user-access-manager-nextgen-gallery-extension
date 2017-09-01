@@ -1,12 +1,12 @@
 <?php
 namespace UserAccessManagerNextGenGallery;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
-use UserAccessManager\FileHandler\FileHandler;
-use UserAccessManager\FileHandler\FileObjectFactory;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\File\FileHandler;
+use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
 use UserAccessManagerNextGenGallery\Controller\AdminController;

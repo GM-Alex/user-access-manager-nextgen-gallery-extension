@@ -1,11 +1,11 @@
 <?php
 namespace UserAccessManagerNextGenGallery\Controller;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Controller\AdminObjectController;
 use UserAccessManager\Database\Database;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 use UserAccessManagerNextGenGallery\Config\Config as NggConfig;
